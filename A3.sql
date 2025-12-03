@@ -9,8 +9,7 @@ start "C:\cprg307\Assignment 3 Part 1 Scripts\load_wkis.sql";
 DECLARE
     CURSOR new_transactions_cursor (v_transaction_no new_transactions.transaction_no%TYPE) IS
     SELECT account_no, transaction_no, transaction_type, transaction_amount, transaction_date, description
-    FROM new_transactions
-    WHERE transaction_type = v_transaction_type;
+    FROM new_transactions;
 
     v_account_no new_transactions.account_no%TYPE;
     v_transaction_no new_transactions.transaction_no%TYPE;
@@ -24,10 +23,13 @@ BEGIN
         FETCH new_transactions_cursor into v_account_no, v_transaction_no, v_transaction_type, v_transaction_amount, v_transaction_date, v_description;
         EXIT WHEN new_transactions_cursor%NOTFOUND;
         INSERT INTO transaction_detail(account_no, transaction_no, transaction_type, transaction_amount)
-        VALUES (account_no, transaction_no, transaction_type, transaction_amount);
+        VALUES (v_account_no, v_transaction_no, v_transaction_type, v_transaction_amount);
         INSERT INTO transaction_history(transaction_no, transaction_date, description)
         VALUES(v_transaction_no, v_transaction_date, v_description);
-        
+        -- Updates the accounts
+        UPDATE ACCOUNT
+        SET account_balance = v_transaction_amount
+        WHERE account_no = v_account_no;
     END LOOP;
     CLOSE new_transactions_cursor;
 END;
