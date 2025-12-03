@@ -37,7 +37,7 @@ BEGIN
         
         -- Updates the accounts
         UPDATE ACCOUNT
-        SET account_balance = v_transaction_amount
+        SET account_balance = v_transaction_amount + account_balance
         WHERE account_no = v_account_no;
         v_old_transaction_no := v_transaction_no;
         
