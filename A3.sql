@@ -28,6 +28,9 @@ BEGIN
     -- Percaution to not skip over details
     v_old_transaction_no := -1;
     LOOP
+        IF (v_transaction_no = NULL) THEN
+            RAISE_APPLICATION_ERROR(-20001, 'Invalid Transaction Number');
+        END IF;
         FETCH new_transactions_cursor into v_account_no, v_transaction_no, v_transaction_type, v_transaction_amount, v_transaction_date, v_description;
         EXIT WHEN new_transactions_cursor%NOTFOUND;
         IF (v_old_transaction_no != v_transaction_no) THEN
@@ -43,8 +46,10 @@ BEGIN
         -- Decides whether to add or subtract values from account
         IF (v_transaction_type = 'D') THEN
             v_new_account_amount := v_account_balance + v_transaction_amount;
-        ELSE
+        ELSIF (v_transaction_type = 'C') THEN
             v_new_account_amount := v_account_balance - v_transaction_amount;
+        ELSE
+            RAISE_APPLICATION_ERROR(-20001, 'Invalid Transaction Type');
         END IF;
         -- Updates the accounts
         UPDATE ACCOUNT
